@@ -3,6 +3,8 @@ package bookle.rest;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -19,6 +21,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import bookle.modelo.Actividad;
+import bookle.rest.Listado.ResumenExtendido;
+import bookle.servicio.ActividadResumen;
 import bookle.servicio.IServicioBookle;
 import servicio.FactoriaServicios;
 
@@ -40,7 +44,7 @@ public class ControladorBookle {
 		return Response.status(Response.Status.OK).entity(servicio.recuperar(id)).build();
 	}
 
-	// curl -i -X PUT -H "Content-type: application/xml" -d @test-files/1.xml http://localhost:8080/api/actividades/1
+	// curl -i -X PUT -H "Content-type: application/xml" -d @1.xml http://localhost:8080/api/actividades/1
 
 	@PUT
 	@Path("/{id}")
@@ -72,7 +76,7 @@ public class ControladorBookle {
 		return Response.created(nuevaURL).build();
 	}
 
-	// curl -i -X POST --data "alumno=Pepe&email=pepe@um.es" http://localhost:8080/api/actividades/1/agenda/2025-02-07/turnos/1/reserva
+	// curl -i -X POST --data "alumno=Pepe&email=pepe@um.es" http://localhost:8080/api/actividades/1/agenda/2025-02-14/turnos/1/reserva
 
 	@POST
 	@Path("/{id}/agenda/{fecha}/turnos/{indice}/reserva")
@@ -90,6 +94,29 @@ public class ControladorBookle {
 		return Response.status(Response.Status.NO_CONTENT).build();
 	}
 
+	// curl -i -H "Accept: application/xml" http://localhost:8080/api/actividades
 	
+	@GET
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	public Response getListadoActividades() throws Exception {
+		
+		List<ActividadResumen> resultado = servicio.recuperarTodas();
+		
+		LinkedList<ResumenExtendido> extendido = new LinkedList<>();
+		for (ActividadResumen actividadResumen : resultado) {
+			ResumenExtendido resumenExtendido = new ResumenExtendido();
+			resumenExtendido.setResumen(actividadResumen);
+
+			// Construir la URL
+			String id = actividadResumen.getId();
+			URI nuevaURL = this.uriInfo.getAbsolutePathBuilder().path(id).build();
+			resumenExtendido.setUrl(nuevaURL.toString());
+
+			extendido.add(resumenExtendido);
+		}
+		Listado listado = new Listado();
+		listado.setActividad(extendido);
+		return Response.ok(listado).build();
+	}
 
 }
