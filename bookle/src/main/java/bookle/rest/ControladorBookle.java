@@ -6,6 +6,8 @@ import java.time.format.DateTimeParseException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -24,6 +26,7 @@ import bookle.modelo.Actividad;
 import bookle.rest.Listado.ResumenExtendido;
 import bookle.servicio.ActividadResumen;
 import bookle.servicio.IServicioBookle;
+import io.jsonwebtoken.Claims;
 import servicio.FactoriaServicios;
 
 @Path("actividades")
@@ -33,14 +36,26 @@ public class ControladorBookle {
 
 	@Context
 	private UriInfo uriInfo;
+	
+	@Context
+	private HttpServletRequest servletRequest;
 
 	// http://localhost:8080/api/actividades/1
 
+	// curl -X GET -H "Authorization: Bearer %token_jwt%" http://localhost:8080/api/actividades/1
+	
 	@GET
 	@Path("{id}")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	@RolesAllowed("PROFESOR")
 	public Response getActividad(@PathParam("id") String id) throws Exception {
 
+		if (this.servletRequest.getAttribute("claims") != null) {		 
+			 Claims claims = (Claims) this.servletRequest.getAttribute("claims");
+			 System.out.println("Usuario autenticado: " + claims.getSubject());
+			 System.out.println("Roles: " + claims.get("roles"));
+		}
+		
 		return Response.status(Response.Status.OK).entity(servicio.recuperar(id)).build();
 	}
 

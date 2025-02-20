@@ -91,6 +91,8 @@ public class ServicioBookle implements IServicioBookle {
 
 		repositorio.update(actividad);
 
+		
+
 		return true;
 	}
 
