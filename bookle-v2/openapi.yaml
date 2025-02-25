@@ -1,0 +1,257 @@
+openapi: 3.0.1
+info:
+  title: API de Actividades
+  description: API para gestionar actividades y reservas
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+    description: Servidor local
+paths:
+  /actividades:
+    get:
+      summary: Obtener listado de actividades
+      operationId: getListadoActividades
+      responses:
+        '200':
+          description: Listado de actividades obtenido correctamente
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Listado'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listado'
+        '400':
+          description: La solicitud está mal formada o faltan parámetros
+        '500':
+          description: Error interno en el servidor
+    post:
+      summary: Crear una nueva actividad
+      operationId: createActividad
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/CreateActividadDto'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateActividadDto'
+      responses:
+        '201':
+          description: Actividad creada correctamente
+        '400':
+          description: Solicitud inválida, falta información necesaria o está mal formada
+        '500':
+          description: Error interno en el servidor
+  /actividades/{id}:
+    get:
+      summary: Obtener una actividad por ID
+      operationId: getActividad
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Actividad encontrada
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ActividadResponseDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActividadResponseDto'
+        '404':
+          description: Actividad no encontrada
+        '500':
+          description: Error interno en el servidor
+    patch:
+      summary: Actualizar la descripción de una actividad
+      operationId: updateDescripcion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UpdateDescriptionActividadDto'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDescriptionActividadDto'
+      responses:
+        '204':
+          description: Descripción actualizada correctamente
+        '400':
+          description: Solicitud inválida, parámetros faltantes o incorrectos
+        '404':
+          description: Actividad no encontrada
+        '500':
+          description: Error interno en el servidor
+    delete:
+      summary: Eliminar una actividad por ID
+      operationId: removeActividad
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Actividad eliminada correctamente
+        '404':
+          description: Actividad no encontrada
+        '500':
+          description: Error interno en el servidor
+  /actividades/{id}/agenda:
+    put:
+      summary: Actualizar la agenda de una actividad
+      operationId: updateAgenda
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UpdateAgendaActividadDto'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAgendaActividadDto'
+      responses:
+        '204':
+          description: Agenda actualizada correctamente
+        '400':
+          description: La solicitud está mal formada o falta información
+        '404':
+          description: Actividad no encontrada
+        '500':
+          description: Error interno en el servidor
+  /actividades/{id}/agenda/{fecha}/turnos/{indice}/reserva:
+    post:
+      summary: Reservar un turno para una actividad
+      operationId: reservar
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fecha
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: indice
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                alumno:
+                  type: string
+                email:
+                  type: string
+      responses:
+        '204':
+          description: Reserva creada correctamente
+        '400':
+          description: Datos inválidos o mal formateados para la reserva
+        '404':
+          description: Actividad o turno no encontrado
+        '500':
+          description: Error interno en el servidor
+components:
+  schemas:
+    CreateActividadDto:
+      type: object
+      properties:
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        profesor:
+          type: string
+        email:
+          type: string
+    UpdateDescriptionActividadDto:
+      type: object
+      properties:
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        email:
+          type: string
+    UpdateAgendaActividadDto:
+      type: object
+      properties:
+        agenda:
+          type: array
+          items:
+            type: object
+            properties:
+              fecha:
+                type: string
+                format: date
+              turnos:
+                type: array
+                items:
+                  type: string
+    Listado:
+      type: object
+      properties:
+        actividad:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResumenExtendido'
+    ResumenExtendido:
+      type: object
+      properties:
+        url:
+          type: string
+        resumen:
+          $ref: '#/components/schemas/ActividadResumen'
+    ActividadResumen:
+      type: object
+      properties:
+        id:
+          type: string
+        titulo:
+          type: string
+    ActividadResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        profesor:
+          type: string
+        email:
+          type: string
+        agenda:
+          type: array
+          items:
+            type: string
