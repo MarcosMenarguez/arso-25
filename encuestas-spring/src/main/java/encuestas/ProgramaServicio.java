@@ -40,8 +40,8 @@ public class ProgramaServicio {
 		for (EncuestaResumen resumen : servicio.getListadoResumen()) {
 			System.out.println(resumen);
 			
-			if (! resumen.getId().equals(id))
-				servicio.eliminar(resumen.getId());
+//			if (! resumen.getId().equals(id))
+//				servicio.eliminar(resumen.getId());
 		}
 		
 		

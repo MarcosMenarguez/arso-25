@@ -1,3 +1,4 @@
+
 package encuestas.servicio;
 
 import java.time.LocalDateTime;
@@ -6,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -148,6 +151,16 @@ public class ServicioEncuestas implements IServicioEncuestas {
 		}
 
 		return resultado;
+	}
+	
+	public Page<EncuestaResumen> getListadoPaginado(Pageable pageable) {
+	 
+		 return this.repositorio.findAll(pageable).map(encuesta -> {
+			 EncuestaResumen resumen = new EncuestaResumen();
+			 resumen.setId(encuesta.getId());
+			 resumen.setTitulo(encuesta.getTitulo());
+			 return resumen;
+		 });
 	}
 
 }

@@ -3,6 +3,9 @@ package encuestas.servicio;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import encuestas.modelo.Encuesta;
 import repositorio.EntidadNoEncontrada;
 
@@ -19,4 +22,6 @@ public interface IServicioEncuestas {
 	void eliminar(String id) throws EntidadNoEncontrada;
 	
 	List<EncuestaResumen> getListadoResumen() throws EntidadNoEncontrada;
+	
+	Page<EncuestaResumen> getListadoPaginado(Pageable pageable);
 }
