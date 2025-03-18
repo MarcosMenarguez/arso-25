@@ -13,6 +13,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -122,6 +123,7 @@ public class EncuestasController implements EncuestasApi {
 	*/
 	
 	@GetMapping
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public PagedModel<EntityModel<EncuestaResumen>> getEncuestasPaginado(Pageable paginacion) throws Exception {
 		 
 		 Page<EncuestaResumen> resultado = this.servicio.getListadoPaginado(paginacion);
@@ -130,12 +132,5 @@ public class EncuestasController implements EncuestasApi {
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	 
 	
 }

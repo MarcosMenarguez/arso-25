@@ -13,7 +13,7 @@ public class PublicadorEventos {
     public void emitirEvento(Object evento) {
         rabbitTemplate.convertAndSend(
           RabbitMQConfig.EXCHANGE_NAME, 
-          RabbitMQConfig.BINDING_KEY, 
+          RabbitMQConfig.ROUTING_KEY, 
           evento);
     }
 }
