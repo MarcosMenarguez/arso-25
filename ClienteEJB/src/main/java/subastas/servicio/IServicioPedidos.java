@@ -2,6 +2,7 @@ package subastas.servicio;
 
 import javax.ejb.Remote;
 
+import repositorio.RepositorioException;
 import subastas.modelo.Direccion;
 import subastas.modelo.MetodoPago;
 
@@ -12,6 +13,6 @@ public interface IServicioPedidos {
 	void addArticulo(String articulo);
 	void addDatosEnvio(Direccion direccionEnvio);
 	void addInformacionPago(MetodoPago infoPago);
-	void confirmarPedido();
+	void confirmarPedido() throws RepositorioException;;
 
 }

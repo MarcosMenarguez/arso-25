@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import javax.naming.NamingException;
 
-
+import repositorio.RepositorioException;
 import subastas.modelo.Direccion;
 import subastas.modelo.MetodoPago;
 import subastas.servicio.IServicioPedidos;
@@ -12,7 +12,7 @@ import util.InitialContextUtil;
 
 public class PedidosTest {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws RepositorioException {
 			try {
 				//System.out.println("Running on Java: " + System.getProperty("java.version"));
 				IServicioPedidos servicio = (IServicioPedidos) InitialContextUtil.getInstance().lookup(
