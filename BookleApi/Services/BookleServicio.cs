@@ -1,7 +1,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Bookle.Modelo;
+using Bookle.Publicador;
 using Repositorio;
 
 namespace Bookle.Servicio
@@ -18,7 +20,7 @@ namespace Bookle.Servicio
     public interface IServicioBookle
     {
 
-        string Create(Actividad actividad);
+        Task<String> Create(Actividad actividad);
 
         void Update(Actividad actividad);
 
@@ -36,16 +38,20 @@ namespace Bookle.Servicio
 
         private IRepositorio<Actividad, String> repositorio;
 
-        public ServicioBookle(IRepositorio<Actividad, String> repositorio)
+        private IPublicadorMensajes publicador;
+
+        public ServicioBookle(IRepositorio<Actividad, String> repositorio, IPublicadorMensajes publicador)
         {
 
             this.repositorio = repositorio;
+            this.publicador = publicador;
         }
 
 
-        public String Create(Actividad actividad)
+        public async Task<String> Create(Actividad actividad)
         {
 
+            await publicador.Publicar("amq.direct", "arso", "Creando una nueva actividad "+actividad.Titulo);
             return repositorio.Add(actividad);
 
         }
