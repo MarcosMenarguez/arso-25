@@ -25,6 +25,11 @@ namespace BookleApi
 
             services.AddSingleton<IServicioBookle,ServicioBookle>(); 
 
+            var publicador = RabbitMQPublicador.CreateAsync().GetAwaiter().GetResult();
+            services.AddSingleton<IPublicadorMensajes>(publicador);
+
+            services.AddHostedService<ConsumidorMensajes>();
+
             services.AddControllers(options =>
             {
                 options.Filters.Add(typeof(ManejadorGlobalErrores));
