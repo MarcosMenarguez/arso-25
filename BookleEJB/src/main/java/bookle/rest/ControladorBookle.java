@@ -123,5 +123,20 @@ public class ControladorBookle {
 		
 		return Response.ok(extendido).build();
 	}
+	
+	@GET
+	@Path("/enviar/{mensaje}")
+	public Response enviarMensaje(@PathParam("mensaje") String mensaje) {
+		servicio.enviarMensaje(mensaje);
+		return Response.status(Response.Status.NO_CONTENT).build();
+	}
+	
+	@GET
+	@Path("/recibir")
+	public String recibir() {
+		return servicio.recibirMensaje();
+	}
+	
+	
 
 }

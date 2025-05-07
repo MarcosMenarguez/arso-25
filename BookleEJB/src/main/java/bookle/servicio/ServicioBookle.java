@@ -5,8 +5,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.Timeout;
+import javax.ejb.Timer;
+import javax.ejb.TimerConfig;
+import javax.ejb.TimerService;
+import javax.jms.BytesMessage;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSConsumer;
+import javax.jms.JMSContext;
+import javax.jms.Message;
+import javax.jms.Queue;
+import javax.jms.TextMessage;
 
 import bookle.modelo.Actividad;
 import bookle.modelo.DiaAgenda;
@@ -21,6 +33,15 @@ public class ServicioBookle implements IServicioBookle {
 
 	@EJB(beanName = "RepositorioActividad")
 	private Repositorio<Actividad, String> repositorio;
+
+	@Resource(lookup = "java:global/jms/ConnectionFactory")
+	private ConnectionFactory connectionFactoryRabbit;
+
+	@Resource(lookup = "java:global/jms/Queue")
+	private Queue destino;
+	
+	@Resource
+	private TimerService timerService;
 
 	@Override
 	public String crear(Actividad actividad) throws RepositorioException {
@@ -83,7 +104,6 @@ public class ServicioBookle implements IServicioBookle {
 
 		Turno turno = diaActividad.getTurno().get(indice - 1);
 
-		
 		if (turno.getReserva() != null)
 			return false;
 
@@ -94,8 +114,6 @@ public class ServicioBookle implements IServicioBookle {
 		turno.setReserva(reserva);
 
 		repositorio.update(actividad);
-
-		
 
 		return true;
 	}
@@ -121,6 +139,54 @@ public class ServicioBookle implements IServicioBookle {
 		}
 
 		return resultado;
+	}
+
+	@Timeout
+	public void expirado(Timer timer) {
+		
+		String mensaje = (String) timer.getInfo();
+		System.out.println("Envío de mensaje "+mensaje);
+	}
+	
+	@Override
+	public void enviarMensaje(String mensaje) {
+		timerService.createSingleActionTimer(2*60*1000, new TimerConfig(mensaje,true));
+		try (JMSContext context = connectionFactoryRabbit.createContext()) {
+			context.createProducer().send(destino, mensaje);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	@Override
+	public String recibirMensaje() {
+		try (JMSContext context = connectionFactoryRabbit.createContext()) {
+			JMSConsumer consumer = context.createConsumer(destino);
+
+			Message mensaje = consumer.receive(5000);
+
+			if (mensaje != null) {
+				if (mensaje instanceof TextMessage) {
+					TextMessage tm = (TextMessage) mensaje;
+
+					System.out.println("Mensaje recibido: " + tm.getText());
+					return tm.getText();
+				} else if (mensaje instanceof BytesMessage) {
+					BytesMessage mb = (BytesMessage) mensaje;
+					byte[] byteData = null;
+					byteData = new byte[(int) mb.getBodyLength()];
+					mb.readBytes(byteData);
+					mb.reset();
+					System.out.println("Mensaje reicibido: "+new String(byteData));
+					return new String(byteData);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

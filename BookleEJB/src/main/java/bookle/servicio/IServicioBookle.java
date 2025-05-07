@@ -48,4 +48,8 @@ public interface IServicioBookle {
 	 * Retorna un resumen de todas las actividades.	
 	 */
 	List<ActividadResumen> recuperarTodas() throws RepositorioException;
+	
+	void enviarMensaje(String mensaje);
+	
+	String recibirMensaje();
 }
